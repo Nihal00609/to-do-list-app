@@ -2,9 +2,9 @@ import { Task } from "../database/Models/Task.js";
 
 export const createTaskController = async (req, res) => {
   const { title, content } = req.body;
-
+  const creator = req.user.id;
   try {
-    const task = new Task({ title, content });
+    const task = new Task({ title, content, creator });
     await task.save();
     res.status(201).json({ message: "Task created successfully." });
   } catch (error) {
@@ -13,8 +13,11 @@ export const createTaskController = async (req, res) => {
 };
 
 export const getTaskController = async (req, res) => {
+  const userId = req.user.id;
   try {
-    const tasks = await Task.find();
+    const tasks = await Task.find({
+      $or: [{ creator: userId }],
+    });
     res.json(tasks);
   } catch (error) {
     res.status(500).json({ message: "Error fetching Task!!", error });

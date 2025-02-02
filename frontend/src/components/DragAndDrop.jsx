@@ -1,7 +1,8 @@
-import React from 'react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import React from "react";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { Link } from "react-router-dom";
 
-function TaskList({ tasks, onReorder }) {
+function TaskList({ tasks, onReorder, handleDelete }) {
   const handleOnDragEnd = (result) => {
     const { destination, source } = result;
     if (!destination) return;
@@ -23,10 +24,28 @@ function TaskList({ tasks, onReorder }) {
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
-                    style={{ ...provided.draggableProps.style, marginBottom: '10px' }}
+                    style={{
+                      ...provided.draggableProps.style,
+                      marginBottom: "10px",
+                    }}
+                    className="bg-white p-4 mb-4 shadow-md rounded"
                   >
-                    <h3>{task.title}</h3>
+                    <strong>{task.title}</strong>
                     <p>{task.content}</p>
+                    <div className="flex justify-between mt-2">
+                      <Link
+                        to={`/edit-task/${task._id}`}
+                        className="flex w-auto justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-indigo-500"
+                      >
+                        Edit
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(task._id)}
+                        className="flex w-auto justify-center rounded-md bg-red-400 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-red-600"
+                      >
+                        Delete Task
+                      </button>
+                    </div>
                   </div>
                 )}
               </Draggable>

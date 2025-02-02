@@ -4,6 +4,13 @@ import { User } from './../database/Models/User.js';
 
 export const registerController = async (req, res) => {
     const { name, email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (user) {
+        return res.status(201).json({
+            status: false,
+            message: "User already exists",
+        });
+    }
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = new User({ name, email, password: hashedPassword });

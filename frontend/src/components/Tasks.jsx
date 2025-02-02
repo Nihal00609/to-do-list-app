@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { act, useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import CreateTask from "./CreateTask";
@@ -6,6 +6,7 @@ import CreateTask from "./CreateTask";
 const Tasks = () => {
   const navigate = useNavigate();
   const [tasks, setTasks] = useState([]);
+  const [activeTask, setActiveTask] = useState(null);
 
   let userDetails = JSON.parse(localStorage.getItem("user"));
 
@@ -50,6 +51,16 @@ const Tasks = () => {
     }
   };
 
+  const handleOnDrop = ( position) => {
+    console.log(`${activeTask}  Position: ${position}`);
+    if(activeTask == null || activeTask == undefined) return;
+
+    const taskToMove = tasks[activeTask];
+   const updatedTask =  tasks.filter((task,index) => index!== activeTask);
+   updatedTask.splice(position, 0, taskToMove);
+   setTasks(updatedTask)
+  }
+
   return (
     <>
       <div className="max-w-4xl mx-auto">
@@ -86,25 +97,34 @@ const Tasks = () => {
         )}
         <h2 className="text-2xl font-bold my-5 text-center">To Do List</h2>
         <div className="grid grid-cols-3 gap-4">
-          {tasks?.map((task) => (
-            <div key={task._id} className="bg-white p-4 mb-4 shadow-md rounded">
-              <strong>{task.title}</strong>
-              <p>{task.content}</p>
-              <div className="flex justify-between mt-2">
-                <Link
-                  to={`/edit-task/${task._id}`}
-                  className="text-blue-500 flex w-auto justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-indigo-500"
-                >
-                  Edit
-                </Link>
-                <button
-                  onClick={() => handleDelete(task._id)}
-                  className="flex w-auto justify-center rounded-md bg-red-400 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-red-600"
-                >
-                  Delete Task
-                </button>
+          {tasks?.map((task,index) => (
+            <>
+              <div
+                key={task._id}
+                className="bg-white p-4 mb-4 shadow-md rounded cursor-grab"
+                draggable
+                onDragStart={() => setActiveTask(task._id)}
+                onDragEnd={() => setActiveTask(null)}
+                onDrop={() => handleOnDrop(index+1)}
+              >
+                <strong>{task.title}</strong>
+                <p>{task.content}</p>
+                <div className="flex flex-wrap gap-2 justify-between mt-2">
+                  <Link
+                    to={`/edit-task/${task._id}`}
+                    className="flex w-auto justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-indigo-500"
+                  >
+                    Edit
+                  </Link>
+                  <button
+                    onClick={() => handleDelete(task._id)}
+                    className="flex w-auto justify-center rounded-md bg-red-400 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-red-600"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
-            </div>
+            </>
           ))}
         </div>
         <h3 className="text-lg font-bold mt-6">Add a New Task</h3>
